@@ -4,25 +4,22 @@ import java.util.HashMap;
 import java.util.Map;
 import java.io.Serializable;
 
-public class BankAccount implements Serializable {
+public abstract class BankAccount implements Serializable {
     private static final long serialVersionUID = 1L;
+    protected static final int ADMIN_PIN = 9999;
     
     private final String accountHolderName;
     private final String accountNumber;
-    private final String accountType;
-    private double balance;
+    protected double balance;
     private int pin;
     private final Map<LocalDateTime, String> transactionHistory;
-    private double interestRate;
+    protected double interestRate;
     private boolean isLocked;
     private int failedAttempts;
-    private static final int ADMIN_PIN = 9999;
 
-    public BankAccount(String accountHolderName, String accountNumber, String accountType,
-            double initialBalance, int pin, double interestRate) {
+    public BankAccount(String accountHolderName, String accountNumber, double initialBalance, int pin, double interestRate) {
         this.accountHolderName = accountHolderName;
         this.accountNumber = accountNumber;
-        this.accountType = accountType;
         this.balance = initialBalance;
         this.pin = pin;
         this.interestRate = interestRate;
@@ -32,7 +29,7 @@ public class BankAccount implements Serializable {
         recordTransaction("Account opened with initial balance: " + initialBalance);
     }
 
-    private void recordTransaction(String description) {
+    public void recordTransaction(String description) {
         LocalDateTime now = LocalDateTime.now();
         transactionHistory.put(now, description);
     }
@@ -174,9 +171,7 @@ public class BankAccount implements Serializable {
         return accountNumber;
     }
 
-    public String getAccountType() {
-        return accountType;
-    }
+    public abstract String getAccountType();
 
     public boolean isLocked() {
         return isLocked;

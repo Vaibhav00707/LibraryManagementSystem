@@ -124,9 +124,13 @@ public class BankApp {
         
         String accountNumber = generateAccountNumber();
         
-        double interestRate = type.equalsIgnoreCase("Savings") ? 2.5 : 1.5;
+        BankAccount newAccount;
+        if (type.equalsIgnoreCase("Savings")) {
+            newAccount = new SavingsAccount(name, accountNumber, initialDeposit, pin);
+        } else {
+            newAccount = new CheckingAccount(name, accountNumber, initialDeposit, pin);
+        }
         
-        BankAccount newAccount = new BankAccount(name, accountNumber, type, initialDeposit, pin, interestRate);
         accounts.add(newAccount);
         
         System.out.println("\nAccount created successfully!");
@@ -213,7 +217,8 @@ public class BankApp {
             System.out.println("7. Change theme");
             System.out.println("8. Switch account");
             System.out.println("9. Account settings");
-            System.out.println("10. Exit");
+            System.out.println("10. Account-specific features");
+            System.out.println("11. Exit");
             System.out.print("Enter your choice: ");
 
             choice = getIntInput();
@@ -295,8 +300,12 @@ public class BankApp {
                 case 9:
                     accountSettings(currentAccount);
                     break;
-
+                    
                 case 10:
+                    accountSpecificFeatures(currentAccount);
+                    break;
+
+                case 11:
                     System.out.println("Thank you for banking with us!");
                     saveAccountsToFile(); // Save before exiting
                     break;
@@ -305,7 +314,59 @@ public class BankApp {
                     System.out.println("Invalid choice. Please try again.");
             }
 
-        } while (choice != 10);
+        } while (choice != 11);
+    }
+    
+    private static void accountSpecificFeatures(BankAccount account) {
+        System.out.println("\n=== ACCOUNT-SPECIFIC FEATURES ===");
+        
+        if (account instanceof SavingsAccount) {
+            SavingsAccount savingsAccount = (SavingsAccount) account;
+            System.out.println("1. Apply annual bonus");
+            System.out.println("2. Back to main menu");
+            System.out.print("Select option: ");
+            
+            int choice = getIntInput();
+            
+            switch (choice) {
+                case 1:
+                    savingsAccount.applyAnnualBonus();
+                    saveAccountsToFile(); // Save after applying bonus
+                    break;
+                case 2:
+                    return;
+                default:
+                    System.out.println("Invalid option.");
+            }
+        } else if (account instanceof CheckingAccount) {
+            CheckingAccount checkingAccount = (CheckingAccount) account;
+            System.out.println("1. View overdraft limit");
+            System.out.println("2. Change overdraft limit (Admin only)");
+            System.out.println("3. Back to main menu");
+            System.out.print("Select option: ");
+            
+            int choice = getIntInput();
+            
+            switch (choice) {
+                case 1:
+                    System.out.printf("Your current overdraft limit: $%.2f%n", checkingAccount.getOverdraftLimit());
+                    break;
+                case 2:
+                    System.out.print("Enter admin PIN: ");
+                    int adminPin = getIntInput();
+                    System.out.print("Enter new overdraft limit: ");
+                    double newLimit = getDoubleInput();
+                    checkingAccount.setOverdraftLimit(newLimit, adminPin);
+                    saveAccountsToFile(); // Save after changing overdraft limit
+                    break;
+                case 3:
+                    return;
+                default:
+                    System.out.println("Invalid option.");
+            }
+        } else {
+            System.out.println("No special features available for this account type.");
+        }
     }
     
     private static void accountSettings(BankAccount account) {
